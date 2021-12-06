@@ -1,24 +1,22 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router() ;
 
-const {
-  getUserById,
-  getUser,
-  updateUser,
-  userPurchaseList
-} = require("../controllers/user");
-const { isSignedIn, isAuthenticated, isAdmin } = require("../controllers/auth");
+//here userId is coming from url from get method pass 
+//use appropriate controller for geting user by this id 
+const {getUserById,getUser,getAllUsers,updateUser,userPurchaseList} = require("../controllers/user"); //here we are using getUserById method
+const {isSignedIn,isAuthenticated,isAdmin} = require("../controllers/auth");//here we are using isSignedIn , isAuthenticated , 
 
-router.param("userId", getUserById);
 
-router.get("/user/:userId", isSignedIn, isAuthenticated, getUser);
-router.put("/user/:userId", isSignedIn, isAuthenticated, updateUser);
+//getUserById is set the user to req.profile and later we use as a response .
+//userid is coming from get request url 
+router.param("userId",getUserById);
 
-router.get(
-  "/orders/user/:userId",
-  isSignedIn,
-  isAuthenticated,
-  userPurchaseList
-);
+//in this get method we implement some middle ware as well as getUser
+router.get("/user/:userId",getUser);
+//for update records 
+router.put("/user/:userId",isSignedIn,isAuthenticated,updateUser);
+router.get("/users",getAllUsers);
+//retrive the data of how many orders are there for specific userId 
+router.get("/orders/user/:userId",isSignedIn,isAuthenticated,userPurchaseList);
 
-module.exports = router;
+module.exports = router ;

@@ -1,69 +1,77 @@
+//import model 
 const Category = require("../models/category");
 
-exports.getCategoryById = (req, res, next, id) => {
-  Category.findById(id).exec((err, cate) => {
-    if (err) {
-      return res.status(400).json({
-        error: "Category not found in DB"
-      });
-    }
-    req.category = cate;
-    next();
-  });
-};
+//middle ware to set the req.category similar to req.profile
+exports.getCategoryById = (req,res,next) => {
+    //take the cat id from req.params.catId
+    let id = req.params.catId ;
+    //find that id in db 
+    Category.findById(id,(err,docs)=>{
+        if(err || !docs){
+            res.status(400).json({
+                "error" : "requested id is not found "
+            });
+        }
+        req.category = docs ;
+        next();
 
-exports.createCategory = (req, res) => {
-  const category = new Category(req.body);
-  category.save((err, category) => {
-    if (err) {
-      return res.status(400).json({
-        error: "NOT able to save category in DB"
-      });
-    }
-    res.json({ category });
-  });
-};
-
-exports.getCategory = (req, res) => {
-  return res.json(req.category);
-};
-
-exports.getAllCategory = (req, res) => {
-  Category.find().exec((err, categories) => {
-    if (err) {
-      return res.status(400).json({
-        error: "NO categories found"
-      });
-    }
-    res.json(categories);
-  });
-};
-
-exports.updateCategory = (req, res) => {
-  const category = req.category;
-  category.name = req.body.name;
-
-  category.save((err, updatedCategory) => {
-    if (err) {
-      return res.status(400).json({
-        error: "Failed to update category"
-      });
-    }
-    res.json(updatedCategory);
-  });
-};
-
-exports.removeCategory = (req, res) => {
-  const category = req.category;
-
-  category.remove((err, category) => {
-    if (err) {
-      return res.status(400).json({
-        error: "Failed to delete this category"
-      });
-    }
-    res.json({
-      message: "Successfull deleted"
     });
-  });
+}
+//get category using above middleware 
+exports.getCategory = (req,res) => {
+    //we already set in req.category object 
+    return res.json(req.category);
 };
+
+exports.getAllCategory = (req,res) => {
+    Category.find({},(err,docs)=>{
+        if(err || !docs){
+            return res.json({
+                "error" : "no category is available"
+            })
+        }
+        return res.json(docs);
+    })
+}
+
+
+exports.createCategory = (req,res) => {
+    //create an object from model by initializing properties
+    const category = new Category(req.body);
+    //save this object to mongodb
+    category.save((err,docs)=>{
+        if(err){
+            return res.status(400).json({
+                "error" : "Category is already exist."
+            });
+        }
+        res.json(docs);
+    })
+}
+
+exports.updateCategory = (req,res) => {
+    let id = req.category._id ;
+    Category.findByIdAndUpdate(id,req.body,{new:true},(err,docs)=>{
+        if(err || !docs){
+            return res.status(400).json({
+                "error" : `Failed to update Category ${req.category.name}`
+            });
+        }
+        return res.json({
+            "message" : `successfully updated category ${req.category.name}`
+        })
+    });
+}
+
+exports.deleteCategory = (req,res) => {
+    Category.findByIdAndDelete(req.category._id,(err,docs)=>{
+        if(err){
+            return res.status(400).json({
+                "error" : `failed to delete this category ${req.category.name}`
+            });
+        }
+        res.json({
+            "message" : `successfully deleted ${docs.name}`
+        });
+    })
+}

@@ -1,53 +1,23 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router() ;
 
-const {
-  getCategoryById,
-  createCategory,
-  getCategory,
-  getAllCategory,
-  updateCategory,
-  removeCategory
-} = require("../controllers/category");
-const { isSignedIn, isAdmin, isAuthenticated } = require("../controllers/auth");
-const { getUserById } = require("../controllers/user");
+//import the mehtods or middleware from contoller 
+const {getCategoryById,createCategory,getCategory,getAllCategory,updateCategory,deleteCategory} = require("../controllers/category");
+const {isSignedIn,isAuthenticated,isAdmin} = require("../controllers/auth");
+const {getUserById} = require("../controllers/user");
 
-//params
-router.param("userId", getUserById);
-router.param("categoryId", getCategoryById);
+//set param
+router.param("userId",getUserById);
+router.param("catId",getCategoryById);
 
-//actual routers goes here
+//lets first create the category route 
+router.post("/category/create/:userId",isSignedIn,isAuthenticated,isAdmin,createCategory);
+//get the one category or all category 
+router.get("/category/:catId",getCategory);
+router.get("/categories",getAllCategory);
+//update and delete category 
+router.put("/category/:catId/:userId",isSignedIn,isAuthenticated,isAdmin,updateCategory);
+router.delete("/category/:catId/:userId",isSignedIn,isAuthenticated,isAdmin,deleteCategory);
 
-//create
-router.post(
-  "/category/create/:userId",
-  isSignedIn,
-  isAuthenticated,
-  isAdmin,
-  createCategory
-);
 
-//read
-router.get("/category/:categoryId", getCategory);
-router.get("/categories", getAllCategory);
-
-//update
-router.put(
-  "/category/:categoryId/:userId",
-  isSignedIn,
-  isAuthenticated,
-  isAdmin,
-  updateCategory
-);
-
-//delete
-
-router.delete(
-  "/category/:categoryId/:userId",
-  isSignedIn,
-  isAuthenticated,
-  isAdmin,
-  removeCategory
-);
-
-module.exports = router;
+module.exports = router ;

@@ -1,183 +1,190 @@
+//import the product schema model
 const Product = require("../models/product");
+//handling multipart/form-data
 const formidable = require("formidable");
+//extend support to js
 const _ = require("lodash");
 const fs = require("fs");
 
-exports.getProductById = (req, res, next, id) => {
+exports.getProductById = (req, res, next) => {
+  //fetch the id
+  let id = req.params.productId;
   Product.findById(id)
     .populate("category")
-    .exec((err, product) => {
+    .exec((err, docs) => {
       if (err) {
-        return res.status(400).json({
-          error: "Product not found"
+        return res.json({
+          message: "Product with given id is not found ",
         });
       }
-      req.product = product;
+      req.product = docs;
       next();
     });
 };
 
+//handler for creating the product
 exports.createProduct = (req, res) => {
+  //handle multiport data by creating object
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
-
-  form.parse(req, (err, fields, file) => {
-    if (err) {
+  form.parse(req, (error, fields, file) => {
+    if (error) {
+      console.log(error);
       return res.status(400).json({
-        error: "problem with image"
+        error: "problem with image",
       });
     }
-    //destructure the fields
-    const { name, description, price, category, stock } = fields;
+    // console.log(fields);
 
-    if (!name || !description || !price || !category || !stock) {
+    const { name, price, description, category, stock } = fields;
+    //restriction on fields
+    //fetch the details
+    if (!name || !price || !category || !stock || !description) {
       return res.status(400).json({
-        error: "Please include all fields"
+        error: "please ! include all fields ",
       });
     }
+    console.log(fields);
+    let productLocal = new Product(fields);
 
-    let product = new Product(fields);
-
-    //handle file here
+    //handle the file using formidable
     if (file.photo) {
       if (file.photo.size > 3000000) {
         return res.status(400).json({
-          error: "File size too big!"
+          error: "file size is too big",
         });
       }
-      product.photo.data = fs.readFileSync(file.photo.path);
-      product.photo.contentType = file.photo.type;
+      //actual store the data
+      productLocal.photo.data = fs.readFileSync(file.photo.path);
+      productLocal.photo.contentType = file.photo.type;
     }
-    // console.log(product);
 
-    //save to the DB
-    product.save((err, product) => {
-      if (err) {
-        res.status(400).json({
-          error: "Saving tshirt in DB failed"
+    //console.log(productLocal);
+    //save to produtLocal to mongo db
+    productLocal.save((err, product) => {
+      if (error) {
+        return res.status(400).json({
+          error: "saving tshirt in db is failed",
         });
       }
-      res.json(product);
+      return res.json(product);
     });
   });
 };
 
 exports.getProduct = (req, res) => {
+  //bulky image need to undefined
   req.product.photo = undefined;
   return res.json(req.product);
 };
 
-//middleware
+//middleware for photo
 exports.photo = (req, res, next) => {
   if (req.product.photo.data) {
+    //first fetch the content type
     res.set("Content-Type", req.product.photo.contentType);
     return res.send(req.product.photo.data);
   }
   next();
 };
 
-// delete controllers
 exports.deleteProduct = (req, res) => {
-  let product = req.product;
-  product.remove((err, deletedProduct) => {
+  let id = req.product._id;
+  Product.findByIdAndDelete(id, (err, docs) => {
     if (err) {
       return res.status(400).json({
-        error: "Failed to delete the product"
+        error: `failed to delete product ${req.product.name}`,
       });
     }
-    res.json({
-      message: "Deletion was a success",
-      deletedProduct
+    return res.json({
+      message: `successfully deleted product ${req.product.name}`,
     });
   });
 };
 
-// delete controllers
+//plan for update product that we are taking the data from db and
+//show in fields then whatever update we want that we will save it
 exports.updateProduct = (req, res) => {
+  //so taking the data from form updated data
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
 
   form.parse(req, (err, fields, file) => {
     if (err) {
-      return res.status(400).json({
-        error: "problem with image"
+      res.status(400).json({
+        error: "problem with image",
       });
     }
 
-    //updation code
-    let product = req.product;
-    product = _.extend(product, fields);
+    //updation code for product using lodash which takes a updation object and required feilds
+    let productLocal = req.product;
+    productLocal = _.extend(productLocal, fields);
 
-    //handle file here
+    //handle the file using formidable
     if (file.photo) {
       if (file.photo.size > 3000000) {
         return res.status(400).json({
-          error: "File size too big!"
+          error: "file size is too big",
         });
       }
-      product.photo.data = fs.readFileSync(file.photo.path);
-      product.photo.contentType = file.photo.type;
+      //actual store the data
+      productLocal.photo.data = fs.readFileSync(file.photo.path);
+      productLocal.photo.contentType = file.photo.type;
     }
-    // console.log(product);
 
-    //save to the DB
-    product.save((err, product) => {
+    //console.log(productLocal);
+    //save to produtLocal to mongo db
+    productLocal.save((err, product) => {
       if (err) {
-        res.status(400).json({
-          error: "Updation of product failed"
+        return res.status(400).json({
+          error: "saving tshirt in db is failed",
         });
       }
-      res.json(product);
+      return res.json(product);
     });
   });
 };
-
-//product listing
 
 exports.getAllProducts = (req, res) => {
   let limit = req.query.limit ? parseInt(req.query.limit) : 8;
   let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
 
-  Product.find()
+  //we are excluding photos by minus sign
+  Product.find({})
     .select("-photo")
-    .populate("category")
     .sort([[sortBy, "asc"]])
-    .limit(limit)
-    .exec((err, products) => {
+    //.limit(limit)
+    .populate("category")
+    .exec((err, docs) => {
       if (err) {
         return res.status(400).json({
-          error: "NO product FOUND"
+          error: "no product found",
         });
       }
-      res.json(products);
+      return res.json(docs);
     });
 };
 
-exports.getAllUniqueCategories = (req, res) => {
-  Product.distinct("category", {}, (err, category) => {
-    if (err) {
-      return res.status(400).json({
-        error: "NO category found"
-      });
-    }
-    res.json(category);
-  });
-};
-
+//middleware for updating stock and sold
 exports.updateStock = (req, res, next) => {
-  let myOperations = req.body.order.products.map(prod => {
+  //go through the  model/order.js
+  let products = req.body.order.products;
+  //so here we want the array of objects which contain 2 prop like updateone and filter in array manner.
+  //so we are using the map instead of forEach
+  let operationObj = products.map((product) => {
     return {
       updateOne: {
-        filter: { _id: prod._id },
-        update: { $inc: { stock: -prod.count, sold: +prod.count } }
-      }
+        filter: { _id: product._id },
+        update: { $inc: { stock: -1, sold: +1 } },
+      },
     };
   });
 
-  Product.bulkWrite(myOperations, {}, (err, products) => {
+  Product.bulkWrite(operationObj, {}, (err, docs) => {
     if (err) {
+      console.log(err);
       return res.status(400).json({
-        error: "Bulk operation failed"
+        error: "Bulk operations failed to update stock and sold for product",
       });
     }
     next();

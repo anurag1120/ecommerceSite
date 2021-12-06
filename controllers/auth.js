@@ -1,61 +1,74 @@
+//first import model
 const User = require("../models/user");
+//import validation
 const { check, validationResult } = require("express-validator");
+const user = require("../models/user");
 var jwt = require("jsonwebtoken");
 var expressJwt = require("express-jwt");
 
 exports.signup = (req, res) => {
+  //validate the error with coustom messages
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     return res.status(422).json({
-      error: errors.array()[0].msg
+      //"parameter ": errors.array()[0].param,
+      //"message ": errors.array()[0].msg,
+      err : errors.array()[0].msg
     });
   }
 
+  //create obj and initialize properties
   const user = new User(req.body);
+  //save
   user.save((err, user) => {
     if (err) {
       return res.status(400).json({
-        err: "NOT able to save user in DB"
+        err: "not able to store user in db",
       });
     }
-    res.json({
-      name: user.name,
-      email: user.email,
-      id: user._id
-    });
+    res.json(user);
   });
 };
 
+//create the sign in controller
 exports.signin = (req, res) => {
-  const errors = validationResult(req);
-  const { email, password } = req.body;
+  const error = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      error: errors.array()[0].msg
-    });
+  //check our validators blank email or blank password
+  if (!error.isEmpty()) {
+    return res.status(400).json({error : error.array()[0].msg});
   }
 
+  //destructure req.body for further verification
+  const { email, password } = req.body;
+
+  //now it's time to check weather email is present or not for that we required User model already imported
+  //this findOne will either return error or User handle using call back 
   User.findOne({ email }, (err, user) => {
     if (err || !user) {
-      return res.status(400).json({
-        error: "USER email does not exists"
-      });
+      return res.status(400).json({ error: "email is not exist" });
     }
 
-    if (!user.autheticate(password)) {
-      return res.status(401).json({
-        error: "Email and password do not match"
-      });
+    console.log(user); //just for reference 
+
+    //now email is found so it return the user
+    //so check for password matches or not
+    if (!user.authenticate(password)) {
+      return res
+        .status(401)
+        .json({ error: "email id and password does not match" });
     }
 
-    //create token
+    //now email and password is correct so store the log in information to user cookie
+    //for that we need jsonwebtoken and cookie first import that
+    //1. generate token using jsonwebtoken
     const token = jwt.sign({ _id: user._id }, process.env.SECRET);
-    //put token in cookie
+    //2. put above token in user cookie
     res.cookie("token", token, { expire: new Date() + 9999 });
 
-    //send response to front end
+    //now send the respose to front end
+    //destructure first
     const { _id, name, email, role } = user;
     return res.json({ token, user: { _id, name, email, role } });
   });
@@ -64,32 +77,34 @@ exports.signin = (req, res) => {
 exports.signout = (req, res) => {
   res.clearCookie("token");
   res.json({
-    message: "User signout successfully"
+    message: "user signout successfully",
   });
 };
 
-//protected routes
+//protected isSignedIn route controller 
+//protected route
+//here expressJwt aready implemented next so no need to write it though it is a middleware 
 exports.isSignedIn = expressJwt({
-  secret: process.env.SECRET,
-  userProperty: "auth"
+  secret: "learncodeonline",
+  userProperty: "auth" //here auth  is add the some more property to request object checking by returning json response 
 });
 
-//custom middlewares
-exports.isAuthenticated = (req, res, next) => {
-  let checker = req.profile && req.auth && req.profile._id == req.auth._id;
-  if (!checker) {
+//custome middleware 
+exports.isAuthenticated = (req,res,next) => {
+  let checker = req.profile && req.auth && req.profile._id ==req.auth._id ; //here profile is set by frontend
+  if(!checker){
     return res.status(403).json({
-      error: "ACCESS DENIED"
+      "error" : "forbidden user is not authenticated"
     });
   }
-  next();
-};
+  next() ;
+}
 
-exports.isAdmin = (req, res, next) => {
-  if (req.profile.role === 0) {
+exports.isAdmin = (req,res,next) => {
+  if(req.profile.role===0){
     return res.status(403).json({
-      error: "You are not ADMIN, Access denied"
+        error : "you are not admin , ACCESS DENIED"
     });
   }
   next();
-};
+}
