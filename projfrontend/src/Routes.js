@@ -15,6 +15,7 @@ import UpdateProduct from './admin/UpdateProduct';
 import UpdateCategory from './admin/UpdateCategory';
 import Cart from './core/Cart';
 import Orders from './admin/Orders';
+import SalesPredict from './admin/SalesPredict';
 
 
 export default function Routes() {
@@ -34,6 +35,8 @@ export default function Routes() {
             <AdminRoute exact path="/admin/product/update/:productId" component={UpdateProduct} />
             <AdminRoute exact path="/admin/update/:categoryId" component={UpdateCategory} />
             <AdminRoute exact path="/admin/orders" component={Orders}/>
+            <AdminRoute exact path="/admin/salespredict" component={SalesPredict}/>
+
 
         </Switch>
       </BrowserRouter>  

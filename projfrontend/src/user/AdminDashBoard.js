@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { isAuthenticated } from "../auth/helper";
+import { isAuthenticated } from "../auth/helper/index";
 import Base from "../core/Base";
 
 
@@ -24,6 +24,9 @@ const adminLeftSide = () => {
           </li>
           <li className="list-group-item">
               <Link to="/admin/orders" className="nav-link text-success h5">Manage Orders</Link>
+          </li>
+          <li className="list-group-item">
+              <Link to="/admin/salespredict" className="nav-link text-success h5">Predict Sales</Link>
           </li>
       </ul>
     </div>
