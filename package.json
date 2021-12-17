@@ -8,7 +8,7 @@
     "heroku-postbuild": "NPM_CONFIG_PRDUCTION=false npm install --prefix projfrontend && npm run build --prefix projfrontend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "shahid",
+  "author": "anurag",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
