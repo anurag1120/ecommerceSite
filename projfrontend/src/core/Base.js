@@ -6,8 +6,8 @@ const Base = ({title="Hello There!!",description="Best tshirts are available her
         <div>
             <Navigation/>
             <div className="container-fluid jumbotron text-center bg-success font-weight-italic">
-                    <h2 className="display-4 ">{title}</h2>
-                    <p className="lead ">{description}</p>
+                    <h2 className="display-4 text-white">{title}</h2>
+                    <p className="lead text-white">{description}</p>
             </div>
             <div className={className}>{children}</div>
         </div>

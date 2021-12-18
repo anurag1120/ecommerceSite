@@ -110,7 +110,6 @@ export default function AddCategory() {
           {successMessage()}
           {backButton()}
           {categoryForm()}
-          <p className="text-dark text-center"> {JSON.stringify(values)}</p>
         </div>
       </div>
     </Base>

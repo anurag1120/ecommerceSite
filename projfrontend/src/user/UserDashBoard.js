@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
 import Base from '../core/Base'
-import { isAuthenticated } from '../auth/helper/index'
+import { isAuthenticated } from '../auth/helper'
 import { getMyOrders } from './helper/userapicalls'
 import { Accordion } from 'react-bootstrap'
 import OrderTable from "./OrderTable"

@@ -1,17 +1,14 @@
 const { Order, ProductCart } = require("../models/order");
 
-exports.getOrderById = (req, res, next) => {
-  let id = req.params.orderId;
-  //just find the user with this id and return if not found
+exports.getOrderById = (req, res, next, id) => {
   Order.findById(id)
     .populate("products.product", "name price")
     .exec((err, order) => {
-      if (err || !order) {
+      if (err) {
         return res.status(400).json({
-          error: "no order found on db",
+          error: "NO order found in DB"
         });
       }
-      //let's get the user and store into a req.profile object remeber this
       req.order = order;
       next();
     });
@@ -32,6 +29,19 @@ exports.createOrder = (req, res) => {
     return res.json(order);
   });
 };
+
+exports.getMyOrders = (req,res) => {
+  Order.find({user:req.profile._id})
+  .exec((err,orders)=> {
+    if(err) {
+      return res.status(400).json({
+        error: "No orders were made"
+      });
+    }
+    res.json(orders);
+  } );
+
+}
 
 exports.getAllOrders = (req, res) => {
   Order.find({})

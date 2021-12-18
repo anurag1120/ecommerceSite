@@ -22,7 +22,7 @@ export default function Orders() {
   const preload = () => {
     getAllOrders(user._id, token).then((data) => {
       if (data.error) {
-        <h3>{data.error}</h3>;
+        console.log("Error",data.error);
       } else {
         console.log(data);
         setOrders(data);
@@ -53,7 +53,7 @@ export default function Orders() {
           {backButton()}
           <h1 className=" pt-3 ">Orders</h1>
           <p className=" text-muted">{orders.length} Orders found</p>
-          <div className="px-3">
+          <div  className="px-3">
             <div
               className="row border rounded-3 align-items-center p-2 my-2"
               style={{ backgroundColor: "#F7ECEF" }}
@@ -85,7 +85,7 @@ export default function Orders() {
               let date = tsplit[0];
               let time = tsplit[1].split(".")[0];
               return (
-                <div className="row border border-3 border-info rounded-3 align-items-center p-2 my-2 ">
+                <div key={index} className="row border border-3 border-info rounded-3 align-items-center p-2 my-2 ">
                   <div className="col-2">
                     <h5>
                       <span className="badge bg-success me-4">{order._id}</span>
@@ -139,12 +139,12 @@ export default function Orders() {
                             </tr>
                           </thead>
                           <tbody>
-                            {order.products.map((product, index) => {
+                            {order.products.map((product, idx) => {
                               return (
-                                <tr>
-                                  <td>{product._id}</td>
-                                  <td>{product.name}</td>
-                                  <td>{product.price}</td>
+                                <tr key={idx}>
+                                  <td key={idx+1}>{product._id}</td>
+                                  <td key={idx+2}>{product.name}</td>
+                                  <td key={idx+3}>{product.price}</td>
                                 </tr>
                               );
                             })}

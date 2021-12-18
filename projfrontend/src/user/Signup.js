@@ -78,7 +78,7 @@ const Signup = () => {
             <div className="form-group">
               <label className="text-light m-2">Password</label>
               <input
-                type="text"
+                type="password"
                 name="password"
                 value={password}
                 onChange={(e) => {
@@ -121,7 +121,6 @@ const Signup = () => {
       {errorMessage()}
       {successMessage()}
       {signUpForm()}
-      <p className="text-white text-center">{JSON.stringify(values)}</p>
     </Base>
   );
 };

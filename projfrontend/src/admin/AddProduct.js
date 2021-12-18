@@ -254,7 +254,6 @@ export default function AddProduct() {
           {createProductForm()}
           {loadingMessage()}
           {performRedirect()}
-          <p className="text-center text-dark">{JSON.stringify(values)}</p>
         </div>
       </div>
     </Base>

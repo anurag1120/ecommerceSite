@@ -13,7 +13,7 @@ export default function ManageProducts() {
   const preload = () => {
     getProducts().then((data) => {
       if (data.error) {
-        <h4>{data.error}</h4>;
+        console.log("error",data.error);
       } else {
         setProducts(data);
       }
@@ -47,7 +47,7 @@ export default function ManageProducts() {
       
       <div className="row">
         <div className="col-12">
-          <h2 className="text-center text-white my-3">Total 3 products</h2>
+          <h2 className="text-center text-white my-3">Total {products.length} products</h2>
 
           {products.map((product) => {
             return (

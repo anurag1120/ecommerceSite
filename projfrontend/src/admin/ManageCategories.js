@@ -45,7 +45,7 @@ export default function ManageCategories() {
       <h2 className="mb-4">All Categories:</h2>
       <div className="row">
         <div className="col-12">
-          <h2 className="text-center text-white my-3">Total 3 products</h2>
+          <h2 className="text-center text-white my-3">Total {categories.length} categories</h2>
           {categories.map((category, index) => {
             return (
               <div className="row text-center mb-2 ">
