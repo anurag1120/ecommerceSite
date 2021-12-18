@@ -19,7 +19,11 @@ export default function SalesPredict() {
             <h1>Predicted Sales for next {sales.length} months is </h1>
             <ol className="list-group">
             {sales.map((val,idx)=>{
+<<<<<<< HEAD
                 return <li className="list-group-item" key={idx}>${parseFloat(val).toFixed(2)}</li>
+=======
+                return <li className="list-group-item" key={idx}>${val}</li>
+>>>>>>> b324e47d8e3f8e1183f770c610728b195b2da0ba
             })}
             </ol>
             

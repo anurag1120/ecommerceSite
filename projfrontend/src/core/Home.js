@@ -37,10 +37,17 @@ export default function Home() {
 
     return (
         <Base
+<<<<<<< HEAD
          title={ `Hello `+ (!displayName?`There!`:capitalizeFirstLetter(displayName)+`!`)}
          description="Best tshirts are available here"
         >
             <div className="d-flex justify-content-evenly text-dark flex-wrap">
+=======
+         title={ `Hello`+ (!displayName?`There!`:capitalizeFirstLetter(displayName)+`!`)}
+         description="Best tshirts are available here"
+        >
+            <div className="d-flex justify-content-evenly text-light flex-wrap">
+>>>>>>> b324e47d8e3f8e1183f770c610728b195b2da0ba
                 {products.map((product,index)=>{
                     return (
                         <div key={index} className="blocks"><Card product={product} addtocart={true}/></div>
